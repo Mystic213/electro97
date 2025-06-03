@@ -71,13 +71,16 @@ def main():
     st.set_page_config(page_title="Tienda IA", page_icon="🛒", layout="wide")
 
     # --- CONFIGURACIÓN E INICIALIZACIÓN DE TWILIO (AHORA DENTRO DE MAIN) ---
-    # Es crucial reemplazar los valores de ejemplo con tus credenciales reales obtenidas de tu cuenta de Twilio.
-    # ADVERTENCIA: Incluir estas credenciales directamente en el código de Streamlit no es seguro para aplicaciones públicas.
-    # Para aplicaciones desplegadas, se recomienda usar variables de entorno o un backend separado (como Flask).
-    TWILIO_ACCOUNT_SID = "AC3a9ca0321d899d0c606d72299f6b6357"
-    TWILIO_AUTH_TOKEN = "d9b615d87dd91dbabab82bc572aa0104"
-    TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # WhatsApp Sandbox de Twilio
-    RECIPIENT_WHATSAPP_NUMBER = "whatsapp:+5491133702819" # Número destino (cliente/local)
+    # Las credenciales ahora se leen desde variables de entorno para mayor seguridad.
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+    TWILIO_WHATSAPP_NUMBER = os.environ.get("TWILIO_WHATSAPP_NUMBER")  # WhatsApp Sandbox de Twilio
+    RECIPIENT_WHATSAPP_NUMBER = os.environ.get("RECIPIENT_WHATSAPP_NUMBER") # Número destino (cliente/local)
+
+    # Validar credenciales
+    if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER, RECIPIENT_WHATSAPP_NUMBER]):
+        st.error("Faltan credenciales de Twilio. Configura las variables de entorno: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER, RECIPIENT_WHATSAPP_NUMBER.")
+        return
 
     # Inicializa el cliente de Twilio solo una vez y solo si no existe ya (para evitar problemas de recarga en Streamlit)
     if "twilio_client" not in st.session_state:

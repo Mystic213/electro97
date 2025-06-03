@@ -71,11 +71,13 @@ def main():
     st.set_page_config(page_title="Tienda IA", page_icon="🛒", layout="wide")
 
     # --- CONFIGURACIÓN E INICIALIZACIÓN DE TWILIO (AHORA DENTRO DE MAIN) ---
-    # Las credenciales ahora se leen desde variables de entorno para mayor seguridad.
-    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
-    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
-    TWILIO_WHATSAPP_NUMBER = os.environ.get("TWILIO_WHATSAPP_NUMBER")  # WhatsApp Sandbox de Twilio
-    RECIPIENT_WHATSAPP_NUMBER = os.environ.get("RECIPIENT_WHATSAPP_NUMBER") # Número destino (cliente/local)
+    # Es crucial reemplazar los valores de ejemplo con tus credenciales reales obtenidas de tu cuenta de Twilio.
+    # ADVERTENCIA: Incluir estas credenciales directamente en el código de Streamlit no es seguro para aplicaciones públicas.
+    # Para aplicaciones desplegadas, se recomienda usar variables de entorno o un backend separado (como Flask).
+    TWILIO_ACCOUNT_SID = "AC3a9ca0321d899d0c606d72299f6b6357"
+    TWILIO_AUTH_TOKEN = "68ebfec88864064708bbd95bddcaec51"
+    TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # WhatsApp Sandbox de Twilio
+    RECIPIENT_WHATSAPP_NUMBER = "whatsapp:+5491133702819" # Número destino (cliente/local)
 
     # Validar credenciales
     if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER, RECIPIENT_WHATSAPP_NUMBER]):
@@ -443,7 +445,21 @@ def main():
 
         if st.session_state.show_whatsapp_form:
             with st.form("whatsapp_form", clear_on_submit=False):
-                nombre_cliente = st.text_input("Tu nombre y apellido")
+                st.markdown("""
+                <div style='text-align:center; margin-bottom:1.2em;'>
+                    <span style='font-size:2.1rem; color:#25d366; font-weight:bold;'>📲 ¡Confirmá tu compra por WhatsApp!</span><br>
+                    <span style='font-size:1.18rem; color:#ff9800; font-weight:bold;'>Completá tus datos y enviá tu pedido directo al local.</span><br>
+                    <span style='font-size:1.05rem; color:#7d5c3a;'>Tu número es opcional, pero ayuda a contactarte más rápido.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                st.markdown("""
+                <div style='font-size:1.13rem; color:#25d366; font-weight:bold; margin-bottom:0.2em;'>🧑‍💼 Tu nombre y apellido</div>
+                """, unsafe_allow_html=True)
+                nombre_cliente = st.text_input(" ", key="nombre_cliente_whatsapp")
+                st.markdown("""
+                <div style='font-size:1.13rem; color:#25d366; font-weight:bold; margin-bottom:0.2em;'>📱 Tu número de WhatsApp <span style='color:#b08a62;'>(opcional)</span></div>
+                """, unsafe_allow_html=True)
+                numero_cliente = st.text_input(" ", key="numero_cliente_whatsapp")
                 st.markdown("#### Productos seleccionados:")
                 for nombre, precio, cantidad in st.session_state.carrito:
                     st.markdown(f"- {cantidad} x {nombre} (${precio} c/u)")
@@ -455,6 +471,8 @@ def main():
                     if twilio_client and RECIPIENT_WHATSAPP_NUMBER and TWILIO_WHATSAPP_NUMBER:
                         mensaje = f"🛍️ *¡NUEVO PEDIDO RECIBIDO!* 🛍️\n\n"
                         mensaje += f"👤 *Cliente:* {nombre_cliente if nombre_cliente else 'Cliente Desconocido'}\n"
+                        if numero_cliente:
+                            mensaje += f"📱 *Número de contacto:* {numero_cliente}\n"
                         mensaje += f"📅 *Fecha y Hora:* {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                         mensaje += f"*Productos:*\n"
                         productos_enviados = False
